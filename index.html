@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>레터레이브</title>
+
+    <!-- Google Tag Manager -->
+    <script>(function (w, d, s, l, i) {
+            w[l] = w[l] || []; w[l].push({
+                'gtm.start':
+                    new Date().getTime(), event: 'gtm.js'
+            }); var f = d.getElementsByTagName(s)[0],
+                j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
+                    'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
+        })(window, document, 'script', 'dataLayer', 'GTM-WK9W85N6');</script>
+    <!-- End Google Tag Manager -->
+
+    <!-- Vercel Analytics -->
+    <script>
+        window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
+    <!-- End Vercel Analytics -->
+
+    <!-- Custom Unified Tracking -->
+    <script src="tracking.js"></script>
+
+    <link rel="stylesheet" as="style" crossorigin
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    keyframes: {
+                        marquee: {
+                            '0%': { transform: 'translateX(0%)' },
+                            '100%': { transform: 'translateX(-50%)' },
+                        }
+                    },
+                    animation: {
+                        marquee: 'marquee 28s linear infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="bg-[#F9F8F6] text-[#555555] antialiased">
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WK9W85N6" height="0" width="0"
+            style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
+    <main class="w-full min-h-screen font-sans">
+
+        <!-- Hero Image -->
+        <section id="hero-section" class="w-full m-0 p-0">
+            <img src="assets/first-image.png" alt="Hero Background" class="w-full h-auto block m-0 p-0" />
+        </section>
+
+        <!-- Collage Marquee (Keep existing loop) -->
+        <section class="w-full overflow-hidden relative mt-16 md:mt-24 pb-8">
+            <div class="flex w-max animate-marquee" style="will-change: transform;">
+                <div class="flex">
+                    <img src="assets/collage.png" alt="Collage of polaroids"
+                        class="h-[340px] md:h-[510px] w-auto max-w-none object-cover" />
+                </div>
+                <div class="flex">
+                    <img src="assets/collage.png" alt="Collage of polaroids"
+                        class="h-[340px] md:h-[510px] w-auto max-w-none object-cover" />
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 1: 본질 -->
+        <section class="grid md:grid-cols-2 gap-16 items-center pt-8 pb-24 px-4 max-w-7xl mx-auto">
+            <div class="order-2 md:order-1">
+                <h2 class="text-4xl md:text-5xl font-black tracking-tighter text-[#1A1A1A] mb-6 leading-tight">
+                    타이핑만 하세요.<br>전달은 우리가 합니다
+                </h2>
+                <p class="font-medium text-[#444444] leading-relaxed text-lg">
+                    타이핑을 마치는 순간, 우리가 직접 오렌지 엽서로 인쇄해 상대방에게 온전히 배송합니다.
+                </p>
+            </div>
+            <div class="w-full bg-[#ECEBE7] order-1 md:order-2">
+                <img src="assets/head-image-01.png" alt="Delivery Essence"
+                    class="w-full h-auto object-cover rounded-none block" />
+            </div>
+        </section>
+
+        <!-- Section 2: 물성 -->
+        <section class="flex flex-col items-start text-left py-24 px-4 max-w-5xl mx-auto">
+            <div class="w-full mb-12 bg-[#ECEBE7]">
+                <img src="assets/head-image-02.png" alt="Material Texture"
+                    class="w-full h-auto object-cover rounded-none transition-opacity duration-700 ease-in-out opacity-0 block"
+                    onload="this.classList.remove('opacity-0')" />
+            </div>
+            <h2 class="text-4xl md:text-5xl font-black tracking-tighter text-[#1A1A1A] mb-6 leading-tight">
+                문자는 휘발되고,<br>종이는 남습니다.
+            </h2>
+            <p class="font-medium text-[#444444] leading-relaxed text-lg max-w-3xl">
+                수많은 알림 속에 휘발되는 메시지 대신, 묵직한 오렌지 매트지의 질감을 선물하세요. 시간이 지나도 남아있는 단 하나의 실체입니다.
+            </p>
+        </section>
+
+        <!-- Section 3: 아카이브 -->
+        <section class="grid md:grid-cols-2 gap-16 items-center py-24 px-4 max-w-7xl mx-auto">
+            <div class="w-full bg-[#ECEBE7]">
+                <img src="assets/head-image-03.png" alt="Archive Postcards"
+                    class="w-full h-auto object-cover rounded-none block" />
+            </div>
+            <div class="text-left">
+                <h2 class="text-4xl md:text-5xl font-black tracking-tighter text-[#1A1A1A] mb-6 leading-tight">
+                    엽서는 보냈어도<br>당신께 기록은 남습니다.
+                </h2>
+                <p class="font-medium text-[#444444] leading-relaxed text-lg">
+                    발송한 모든 문장과 엽서의 형태는 보관함에 영구히 기록되어 언제든 고요히 꺼내볼 수 있습니다.
+                </p>
+            </div>
+        </section>
+
+        <!-- Section 4: Final CTA -->
+        <section class="min-h-[50vh] flex flex-col items-center justify-center text-center py-32 px-4">
+            <h2 class="text-5xl md:text-7xl font-black tracking-tighter text-[#1A1A1A] mb-12 leading-tight">
+                지금, 누구의 얼굴이 떠올랐나요?
+            </h2>
+            <button
+                onclick="if(typeof window.sendTrackingEvent === 'function') window.sendTrackingEvent('click_cta_main', 'CTA_Clicked'); setTimeout(() => window.location.href='/write', 150);"
+                class="bg-[#1A1A1A] text-white px-10 py-5 text-lg font-bold tracking-widest hover:bg-[#FF4500] transition-colors duration-300">
+                첫 번째 엽서 작성하기 ➔
+            </button>
+        </section>
+
+    </main>
+
+    <!-- Sticky CTA Bar -->
+    <div id="sticky-cta"
+        class="fixed bottom-0 left-0 w-full h-16 bg-[#1A1A1A] text-white flex items-center justify-between px-6 z-50 transform translate-y-full transition-transform duration-500 ease-in-out">
+        <div class="text-sm font-light tracking-wide">단 한 장의 실체 / 1,500원</div>
+        <a href="javascript:void(0);"
+            onclick="if(typeof window.sendTrackingEvent === 'function') window.sendTrackingEvent('click_cta_main', 'CTA_Clicked'); setTimeout(() => window.location.href='/write', 150);"
+            class="text-sm font-bold border-b border-white pb-0.5 cursor-pointer hover:text-[#FF4500] hover:border-[#FF4500] transition-colors">엽서
+            작성하기 ➔</a>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+
+</html>

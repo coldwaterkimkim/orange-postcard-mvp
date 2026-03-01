@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>레터레이브 - 편지 쓰기</title>
+    <link rel="stylesheet" as="style" crossorigin
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Courier+Prime&family=Gowun+Dodum&family=Nanum+Myeongjo:wght@400;700&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: "Pretendard", sans-serif;
+        }
+
+        /* Remove default scrollbar for textarea */
+        textarea::-webkit-scrollbar {
+            display: none;
+        }
+
+        textarea {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* 3D Utilities */
+        .perspective-\[1500px\] {
+            perspective: 1500px;
+        }
+
+        .preserve-3d {
+            transform-style: preserve-3d;
+        }
+
+        .backface-hidden {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+    </style>
+
+    <!-- Vercel Analytics -->
+    <script>
+        window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
+    <!-- End Vercel Analytics -->
+
+    <!-- Custom Unified Tracking -->
+    <script src="/tracking.js"></script>
+</head>
+
+<body class="bg-[#F9F8F6] text-[#1A1A1A] antialiased">
+    <div id="root"></div>
+
+    <!-- React, ReactDOM, and Framer Motion via UMD/CDN -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
+    <!-- Babel for compiling JSX in browser -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+        const { motion, AnimatePresence } = window.Motion;
+
+        function Wizard() {
+            const [step, setStep] = useState(1);
+            const [formData, setFormData] = useState(() => {
+                const saved = localStorage.getItem('letterave_formData');
+                if (saved) {
+                    try {
+                        return JSON.parse(saved);
+                    } catch (e) { console.error('Failed to parse local storage', e); }
+                }
+                return {
+                    message: '',
+                    receiverName: '',
+                    receiverPhone: '',
+                    receiverAddress: '',
+                    receiverAddressDetail: '',
+                    senderName: '',
+                    senderPhone: ''
+                };
+            });
+
+            // State for Postcard 3D flip (Step 1)
+            const [isFlipped, setIsFlipped] = useState(false);
+            const [selectedFont, setSelectedFont] = useState('handwriting');
+            const textareaRef = useRef(null);
+
+            // Mapping for dynamically changing font-family
+            const fontMap = {
+                'typewriter': "'Courier Prime', monospace",
+                'editorial': "'Nanum Myeongjo', serif",
+                'handwriting': "'Gowun Dodum', sans-serif"
+            };
+
+            // Focus textarea after flip
+            useEffect(() => {
+                if (isFlipped && textareaRef.current) {
+                    setTimeout(() => textareaRef.current.focus(), 800);
+                    // Tracking Step 2: Form Focus (Start Postcard)
+                    if (typeof window.sendTrackingEvent === 'function') {
+                        window.sendTrackingEvent('start_write_postcard', 'Write_Started', formData);
+                    }
+                }
+            }, [isFlipped]);
+
+            // State for Daum Postcode Modal
+            const [isPostcodeOpen, setIsPostcodeOpen] = useState(false);
+
+            // State for Fake Door Modal (Pre-order Lead)
+            const [isFakeDoorOpen, setIsFakeDoorOpen] = useState(false);
+            const [fakeDoorLead, setFakeDoorLead] = useState('');
+
+            // Auto-save to localStorage whenever formData changes
+            useEffect(() => {
+                localStorage.setItem('letterave_formData', JSON.stringify(formData));
+            }, [formData]);
+
+            const handleChange = (e) => {
+                const { name, value } = e.target;
+                if (name === 'message' && value.length > 150) return; // Enforce 150 char limit
+
+                let processedValue = value;
+                if (name === 'receiverName' || name === 'senderName') {
+                    // 숫자와 특수문자 차단 (한글, 영문, 공백 허용)
+                    processedValue = value.replace(/[^가-힣a-zA-Z\s]/g, '');
+                } else if (name === 'receiverPhone' || name === 'senderPhone') {
+                    // 숫자만 남기고 하이픈 포맷팅
+                    const onlyNums = value.replace(/[^\d]/g, '');
+                    if (onlyNums.length <= 3) processedValue = onlyNums;
+                    else if (onlyNums.length <= 7) processedValue = `${onlyNums.slice(0, 3)}-${onlyNums.slice(3)}`;
+                    else processedValue = `${onlyNums.slice(0, 3)}-${onlyNums.slice(3, 7)}-${onlyNums.slice(7, 11)}`;
+                }
+
+                // Scroll Height Rollback Logic for message overflow
+                if (name === 'message' && textareaRef.current) {
+                    const el = textareaRef.current;
+                    // Temporary apply value to check height
+                    const currentVal = el.value;
+                    el.value = processedValue;
+                    const isOverflowing = el.scrollHeight > el.clientHeight && dynamicFontSize <= 12;
+                    el.value = currentVal; // revert
+                    if (isOverflowing) return; // Ignore input if it fundamentally breaks layout at min-size
+                }
+
+                setFormData(prev => ({ ...prev, [name]: processedValue }));
+            };
+
+            const handleKeyDown = (e) => {
+                if (e.target.name === 'message' && e.key === 'Enter') {
+                    const lines = e.target.value.split('\n').length;
+                    if (lines >= 5) {
+                        e.preventDefault(); // Block more than 5 explicit line breaks
+                    }
+                }
+            };
+
+            const nextStep = () => {
+                if (step === 1 && typeof window.sendTrackingEvent === 'function') {
+                    // Tracking Step 3: Complete Step 1 / Move to Step 2
+                    window.sendTrackingEvent('complete_write_step_1', 'Write_Step1_Done', formData);
+                }
+                setStep((prev) => Math.min(prev + 1, 3));
+            };
+            const prevStep = () => setStep((prev) => Math.max(prev - 1, 1));
+
+            const getTextSizeClass = (length) => {
+                if (length > 110) return 'text-sm leading-relaxed';
+                if (length > 60) return 'text-base leading-relaxed';
+                return 'text-lg leading-loose';
+            };
+
+            // Dynamic Font Scaling Logic
+            const [dynamicFontSize, setDynamicFontSize] = useState(18); // Default text-lg is 18px
+
+            useEffect(() => {
+                if (textareaRef.current) {
+                    const el = textareaRef.current;
+                    // Reset to measure
+                    el.style.fontSize = '18px';
+
+                    let currentSize = 18;
+                    // While text is overflowing and font size is above minimum (12px)
+                    while (el.scrollHeight > el.clientHeight && currentSize > 12) {
+                        currentSize -= 1;
+                        el.style.fontSize = `${currentSize}px`;
+                    }
+
+                    setDynamicFontSize(currentSize);
+
+                    // If even at 12px it overflows, we can't type more. 
+                    // This creates a physical boundary stop.
+                }
+            }, [formData.message, selectedFont]);
+
+            // Load Daum Postcode API Script
+            useEffect(() => {
+                const script = document.createElement('script');
+                script.src = "//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js";
+                script.async = true;
+                document.body.appendChild(script);
+            }, []);
+
+            const openPostcode = () => {
+                if (window.daum && window.daum.Postcode) {
+                    setIsPostcodeOpen(true);
+                    setTimeout(() => {
+                        const container = document.getElementById('postcode-container');
+                        if (container) {
+                            new window.daum.Postcode({
+                                width: '100%',
+                                height: '100%',
+                                oncomplete: function (data) {
+                                    let fullAddress = data.address;
+                                    let extraAddress = '';
+
+                                    if (data.addressType === 'R') {
+                                        if (data.bname !== '') {
+                                            extraAddress += data.bname;
+                                        }
+                                        if (data.buildingName !== '') {
+                                            extraAddress += (extraAddress !== '' ? `, ${data.buildingName}` : data.buildingName);
+                                        }
+                                        fullAddress += (extraAddress !== '' ? ` (${extraAddress})` : '');
+                                    }
+
+                                    setFormData(prev => ({ ...prev, receiverAddress: fullAddress }));
+                                    setIsPostcodeOpen(false);
+                                }
+                            }).embed(container);
+                        }
+                    }, 50);
+                } else {
+                    alert("우편번호 스크립트를 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
+                }
+            };
+
+            const closePostcode = () => setIsPostcodeOpen(false);
+
+            // Framer motion variants for sliding pages
+            const variants = {
+                initial: { opacity: 0, x: 50 },
+                animate: { opacity: 1, x: 0 },
+                exit: { opacity: 0, x: -50 }
+            };
+
+            return (
+                <div className="min-h-screen max-w-[375px] mx-auto bg-[#F9F8F6] relative overflow-x-hidden flex flex-col justify-between shadow-sm">
+                    {/* Header */}
+                    <header className="p-5 flex items-center justify-between z-10">
+                        {step > 1 ? (
+                            <button onClick={prevStep} className="text-sm font-semibold tracking-tight border border-[#E5E5E5] px-3 py-1 rounded-full hover:bg-black hover:text-white transition-colors">
+                                ← 뒤로
+                            </button>
+                        ) : (
+                            <a href="/" className="text-sm font-semibold tracking-tight border border-[#E5E5E5] px-3 py-1 rounded-full hover:bg-black hover:text-white transition-colors">
+                                홈으로
+                            </a>
+                        )}
+                        <span className="text-xs font-medium text-gray-400">Step {step} of 3</span>
+                    </header>
+
+                    {/* Content Area */}
+                    <div className="flex-1 px-6 pb-24 relative flex flex-col justify-center">
+                        <AnimatePresence mode="wait">
+                            {/* STEP 1: Postcard */}
+                            {step === 1 && (
+                                <motion.div
+                                    key="step1"
+                                    variants={variants}
+                                    initial="initial"
+                                    animate="animate"
+                                    exit="exit"
+                                    transition={{ duration: 0.3 }}
+                                    className="w-full flex-1 flex flex-col items-center justify-center pt-4"
+                                >
+                                    {/* 3D Flip Container */}
+                                    <div className="w-full aspect-[1.48/1] relative perspective-[1500px]" onClick={() => { if (!isFlipped) setIsFlipped(true); }}>
+                                        <motion.div
+                                            className="w-full h-full relative preserve-3d shadow-2xl"
+                                            animate={{ rotateY: isFlipped ? 180 : 0 }}
+                                            transition={{ duration: 0.8, type: "spring", stiffness: 60, damping: 15 }}
+                                        >
+                                            {/* Front Face */}
+                                            <div
+                                                className="absolute inset-0 backface-hidden bg-[url('/assets/real-letter-front-page.png')] bg-contain bg-no-repeat bg-center flex items-center justify-center cursor-pointer border border-[#E5E5E5] bg-[#F9F8F6]"
+                                            >
+                                                {!isFlipped && (
+                                                    <span className="text-black/60 font-semibold tracking-widest text-sm animate-pulse bg-white/60 px-5 py-3 rounded-full backdrop-blur-md shadow-sm">
+                                                        터치해서 엽서 작성하기
+                                                    </span>
+                                                )}
+                                            </div>
+
+                                            {/* Back Face */}
+                                            <div
+                                                className="absolute inset-0 backface-hidden [transform:rotateY(180deg)] bg-[url('/assets/real-letter-back-page.png')] bg-contain bg-no-repeat bg-center flex flex-col border border-[#E5E5E5] bg-[#F9F8F6]"
+                                            >
+                                                <textarea
+                                                    ref={textareaRef}
+                                                    name="message"
+                                                    value={formData.message}
+                                                    onChange={handleChange}
+                                                    onKeyDown={handleKeyDown}
+                                                    maxLength={150}
+                                                    placeholder={isFlipped ? "마음을 담아 편지를 적어보세요..." : ""}
+                                                    style={{ fontFamily: fontMap[selectedFont], fontSize: `${dynamicFontSize}px` }}
+                                                    className={`w-full h-full bg-transparent resize-none outline-none text-[#1A1A1A] placeholder:text-black/30 p-8 pt-10 overflow-hidden leading-loose text-base md:text-lg`}
+                                                />
+                                            </div>
+                                        </motion.div>
+                                    </div>
+
+                                    {/* Content below card */}
+                                    <div className="flex flex-col items-center w-full mt-8 opacity-0 animate-[fadeIn_0.5s_ease-out_forwards]" style={{ animationDelay: '0.4s' }}>
+                                        <p className="text-center text-sm font-medium text-gray-400 mb-6">
+                                            <span className={formData.message.length >= 150 ? 'text-red-500 font-bold' : ''}>{formData.message.length}</span> <span className="text-gray-300">/ 150</span>
+                                        </p>
+
+                                        {/* Font Selection */}
+                                        <div className="flex space-x-6">
+                                            {[
+                                                { id: 'typewriter', name: 'Typewriter' },
+                                                { id: 'editorial', name: 'Editorial' },
+                                                { id: 'handwriting', name: 'Handwriting' }
+                                            ].map(font => (
+                                                <button
+                                                    key={font.id}
+                                                    onClick={() => setSelectedFont(font.id)}
+                                                    className={`text-[10px] font-bold uppercase tracking-widest pb-1 border-b transition-colors ${selectedFont === font.id ? 'border-[#1A1A1A] text-[#1A1A1A]' : 'border-transparent text-gray-400 hover:text-black'}`}
+                                                >
+                                                    {font.name}
+                                                </button>
+                                            ))}
+                                        </div>
+
+                                        {/* Minimalist Next Button */}
+                                        <button
+                                            onClick={nextStep}
+                                            disabled={!formData.message.trim() || formData.message.length > 150}
+                                            className="border-b border-[#1A1A1A] pb-1 uppercase tracking-widest text-sm font-bold mt-10 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed hover:opacity-70 transition-opacity"
+                                        >
+                                            다음 ➔
+                                        </button>
+                                    </div>
+                                    <style>{`
+                                        @keyframes fadeIn {
+                                            from { opacity: 0; transform: translateY(10px); }
+                                            to { opacity: 1; transform: translateY(0); }
+                                        }
+                                    `}</style>
+                                </motion.div>
+                            )}
+
+                            {/* STEP 2: Receiver Info */}
+                            {step === 2 && (
+                                <motion.div
+                                    key="step2"
+                                    variants={variants}
+                                    initial="initial"
+                                    animate="animate"
+                                    exit="exit"
+                                    transition={{ duration: 0.3 }}
+                                    className="w-full relative"
+                                >
+                                    <h2 className="text-3xl font-extrabold mb-10 tracking-tight leading-tight">누구에게<br />보낼까요?</h2>
+
+                                    <div className="space-y-8">
+                                        <div className="flex flex-col">
+                                            <label className="text-xs font-bold text-gray-400 mb-2 uppercase tracking-wide">받는 사람 이름</label>
+                                            <input
+                                                type="text"
+                                                name="receiverName"
+                                                value={formData.receiverName}
+                                                onChange={handleChange}
+                                                placeholder="홍길동"
+                                                className="bg-transparent border-b border-[#E5E5E5] pb-2 outline-none text-xl font-medium focus:border-black transition-colors"
+                                            />
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <label className="text-xs font-bold text-gray-400 mb-2 uppercase tracking-wide">연락처</label>
+                                            <input
+                                                type="tel"
+                                                name="receiverPhone"
+                                                value={formData.receiverPhone}
+                                                onChange={handleChange}
+                                                placeholder="010-0000-0000"
+                                                className="bg-transparent border-b border-[#E5E5E5] pb-2 outline-none text-xl font-medium focus:border-black transition-colors"
+                                            />
+                                        </div>
+                                        <div className="flex flex-col relative">
+                                            <label className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">배송 주소</label>
+
+                                            {/* Inline Search Bar */}
+                                            <div
+                                                className="flex items-center border-b border-[#E5E5E5] pb-2 mb-6 cursor-pointer group"
+                                                onClick={openPostcode}
+                                            >
+                                                <input
+                                                    type="text"
+                                                    name="receiverAddress"
+                                                    value={formData.receiverAddress}
+                                                    readOnly
+                                                    placeholder="우편번호 찾기를 이용해주세요"
+                                                    className="bg-transparent outline-none text-xl font-medium text-gray-400 cursor-pointer flex-1 w-full truncate"
+                                                />
+                                                <div className="text-[11px] font-bold border border-[#1A1A1A] text-[#1A1A1A] px-3 py-1.5 uppercase group-hover:bg-black group-hover:text-white transition-colors flex-shrink-0 ml-2">
+                                                    우편번호 찾기
+                                                </div>
+                                            </div>
+
+                                            {/* Detail Address */}
+                                            <input
+                                                type="text"
+                                                name="receiverAddressDetail"
+                                                value={formData.receiverAddressDetail || ''}
+                                                onChange={handleChange}
+                                                placeholder="상세 주소를 입력해주세요"
+                                                className="bg-transparent border-b border-[#E5E5E5] pb-2 outline-none text-xl font-medium focus:border-black transition-colors"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Daum Postcode Modal */}
+                                    {isPostcodeOpen && (
+                                        <motion.div
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+                                            onClick={closePostcode}
+                                        >
+                                            <motion.div
+                                                initial={{ opacity: 0, y: 20 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                onClick={(e) => e.stopPropagation()}
+                                                className="w-[90%] max-w-md h-[450px] bg-white border border-[#E5E5E5] shadow-2xl flex flex-col relative overflow-hidden rounded-md"
+                                            >
+                                                <div className="flex justify-between items-center p-3 border-b border-[#E5E5E5] bg-gray-50 flex-shrink-0">
+                                                    <span className="font-bold text-sm">주소 검색</span>
+                                                    <button onClick={closePostcode} className="text-gray-500 hover:text-black font-bold px-2 py-1 text-lg leading-none cursor-pointer">×</button>
+                                                </div>
+                                                <div id="postcode-container" className="w-full flex-1 relative overflow-hidden bg-white" style={{ width: '100%', height: '100%' }}></div>
+                                            </motion.div>
+                                        </motion.div>
+                                    )}
+
+                                    <button
+                                        onClick={nextStep}
+                                        disabled={!formData.receiverName || !formData.receiverPhone || !formData.receiverAddress || !formData.receiverAddressDetail}
+                                        className="w-full mt-12 bg-[#1A1A1A] text-white py-4 text-center font-bold text-lg hover:bg-black transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                                    >
+                                        다음 ➔
+                                    </button>
+                                </motion.div>
+                            )}
+
+                            {/* STEP 3: Sender Info & Payment */}
+                            {step === 3 && (
+                                <motion.div
+                                    key="step3"
+                                    variants={variants}
+                                    initial="initial"
+                                    animate="animate"
+                                    exit="exit"
+                                    transition={{ duration: 0.3 }}
+                                    className="w-full"
+                                >
+                                    <h2 className="text-3xl font-extrabold mb-10 tracking-tight leading-tight">누가<br />보내는 건가요?</h2>
+
+                                    <div className="space-y-8">
+                                        <div className="flex flex-col">
+                                            <label className="text-xs font-bold text-gray-400 mb-2 uppercase tracking-wide">보내는 사람 이름 (선택)</label>
+                                            <input
+                                                type="text"
+                                                name="senderName"
+                                                value={formData.senderName}
+                                                onChange={handleChange}
+                                                placeholder="김철수 (또는 익명)"
+                                                className="bg-transparent border-b border-[#E5E5E5] pb-2 outline-none text-xl font-medium focus:border-black transition-colors"
+                                            />
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <label className="text-xs font-bold text-gray-400 mb-2 uppercase tracking-wide">연락처</label>
+                                            <input
+                                                type="tel"
+                                                name="senderPhone"
+                                                value={formData.senderPhone}
+                                                onChange={handleChange}
+                                                placeholder="010-0000-0000"
+                                                className="bg-transparent border-b border-[#E5E5E5] pb-2 outline-none text-xl font-medium focus:border-black transition-colors"
+                                            />
+                                            <p className="text-xs text-gray-400 mt-2">결제 내역 및 발송 현황 안내를 위해 필요합니다.</p>
+                                        </div>
+                                    </div>
+
+                                    <button
+                                        data-gtm="submit"
+                                        onClick={() => {
+                                            // Tracking Step 4: Final Payment Button Click
+                                            if (typeof window.sendTrackingEvent === 'function') {
+                                                window.sendTrackingEvent('click_payment', 'Payment_Reached', formData);
+                                            }
+                                            setIsFakeDoorOpen(true);
+                                        }}
+                                        disabled={!formData.senderPhone}
+                                        className="w-full mt-16 bg-[#1A1A1A] text-white py-5 text-center font-black text-xl hover:bg-black transition-colors shadow-xl disabled:bg-gray-300 disabled:cursor-not-allowed"
+                                    >
+                                        결제하기 (₩1,500)
+                                    </button>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+
+                        {/* Fake Door Modal */}
+                        <AnimatePresence>
+                            {isFakeDoorOpen && (
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+                                >
+                                    <motion.div
+                                        initial={{ scale: 0.95, opacity: 0, y: 20 }}
+                                        animate={{ scale: 1, opacity: 1, y: 0 }}
+                                        exit={{ scale: 0.95, opacity: 0, y: 20 }}
+                                        className="bg-[#F9F8F6] p-8 w-full max-w-sm border border-[#E5E5E5] shadow-2xl relative flex flex-col"
+                                    >
+                                        <button
+                                            onClick={() => setIsFakeDoorOpen(false)}
+                                            className="absolute top-4 right-4 text-2xl font-light text-[#1A1A1A] hover:text-black leading-none"
+                                        >
+                                            ×
+                                        </button>
+
+                                        <h3 className="text-3xl font-black text-[#1A1A1A] mb-4 tracking-tighter">SOLD OUT</h3>
+                                        <p className="text-sm text-[#555555] leading-relaxed mb-6 break-keep">
+                                            준비된 첫 번째 오렌지 매트지 배치가 모두 소진되었습니다. 다음 배치가 오픈될 때, 가장 먼저 이 문장을 실물로 완성할 수 있도록 알려드릴까요?
+                                        </p>
+
+                                        <input
+                                            type="text"
+                                            value={fakeDoorLead}
+                                            onChange={(e) => setFakeDoorLead(e.target.value)}
+                                            placeholder="이메일 또는 전화번호 입력"
+                                            className="border-b border-[#1A1A1A] bg-transparent w-full pb-2 mb-8 text-lg outline-none placeholder:text-[#1A1A1A]/30 text-[#1A1A1A]"
+                                            autoFocus
+                                        />
+
+                                        <button
+                                            onClick={() => {
+                                                const payload = {
+                                                    ...formData,
+                                                    fakeDoorLeadContact: fakeDoorLead
+                                                };
+                                                console.log("Captured Lead Data:", JSON.stringify(payload, null, 2));
+
+                                                // Tracking Step 5: Fake Door Reservation Completion
+                                                if (typeof window.sendTrackingEvent === 'function') {
+                                                    window.sendTrackingEvent('complete_fake_door_reservation', 'Reservation_Completed', payload);
+                                                }
+
+                                                alert("예약이 완료되었습니다.");
+                                                localStorage.removeItem('letterave_formData');
+                                                window.location.href = '/';
+                                            }}
+                                            disabled={!fakeDoorLead.trim()}
+                                            className="w-full bg-[#1A1A1A] text-white py-4 font-bold tracking-widest uppercase active:scale-[0.98] transition-transform disabled:bg-gray-300 disabled:cursor-not-allowed"
+                                        >
+                                            다음 배치 우선 예약하기
+                                        </button>
+                                    </motion.div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<Wizard />);
+    </script>
+</body>
+
+</html>
