@@ -129,8 +129,8 @@
 
                 let processedValue = value;
                 if (name === 'receiverName' || name === 'senderName') {
-                    // 숫자와 특수문자 차단 (한글, 영문, 공백 허용)
-                    processedValue = value.replace(/[^가-힣a-zA-Z\s]/g, '');
+                    // 숫자와 특수문자 차단 (한글 완성/자모, 영문, 공백 허용)
+                    processedValue = value.replace(/[^가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z\s]/g, '');
                 } else if (name === 'receiverPhone' || name === 'senderPhone') {
                     // 숫자만 남기고 하이픈 포맷팅
                     const onlyNums = value.replace(/[^\d]/g, '');
