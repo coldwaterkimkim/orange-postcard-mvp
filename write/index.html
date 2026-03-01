@@ -452,7 +452,13 @@
                                     )}
 
                                     <button
-                                        onClick={nextStep}
+                                        onClick={() => {
+                                            if (typeof window.sendTrackingEvent === 'function') {
+                                                // Tracking Step 3.5: Checkout Reached (Post-address input)
+                                                window.sendTrackingEvent('reach_checkout', 'Checkout_Reached', formData);
+                                            }
+                                            nextStep();
+                                        }}
                                         disabled={!formData.receiverName || !formData.receiverPhone || !formData.receiverAddress || !formData.receiverAddressDetail}
                                         className="w-full mt-12 bg-[#1A1A1A] text-white py-4 text-center font-bold text-lg hover:bg-black transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
                                     >
