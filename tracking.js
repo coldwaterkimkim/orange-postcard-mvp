@@ -8,7 +8,19 @@ function getOrCreateSessionId() {
     return sessionId;
 }
 
-const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbxhUnjtAWLDYPXPfNz4NdawzGmQBAvtpwiJqsb-hsAT2hJt0qCISBus8HPi8jiNv0AO0g/exec';
+// 📌 URL 파라미터에서 utm_campaign 값을 추출하여 세션에 저장 (광고 추적용)
+function captureUtmParams() {
+    if (typeof window !== 'undefined') {
+        const urlParams = new URLSearchParams(window.location.search);
+        const campaign = urlParams.get('utm_campaign');
+        if (campaign) {
+            sessionStorage.setItem('letterave_campaign', campaign);
+        }
+    }
+}
+captureUtmParams();
+
+const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbwVxrMTXCPq3oAjJZ-84kiZLUQjJvBUaS_WmAf1mUL0TUDRH3vVKOIL9Lz2o-4iE_NWKw/exec';
 
 /**
  * Sends unified tracking events to Vercel Analytics and Google Sheets.
@@ -25,11 +37,13 @@ window.sendTrackingEvent = function (vercelEventName, webhookStatus, payload = {
 
     // 2. Google Sheets Webhook Event
     const sessionId = getOrCreateSessionId();
+    const campaign = sessionStorage.getItem('letterave_campaign') || 'organic';
 
     // We use URLSearchParams to enforce application/x-www-form-urlencoded
     // This allows Google Apps Script (doPost) to easily digest e.parameter without parsing multipart/form-data
     const params = new URLSearchParams();
     params.append('sessionId', sessionId);
+    params.append('campaign', campaign);
     params.append('status', webhookStatus);
 
     // Default form payload mapping
