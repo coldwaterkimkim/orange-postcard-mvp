@@ -209,8 +209,13 @@
             // Motion Placeholder Logic (Typing Effect)
             const templates = [
                 "문득 네 생각이 나서 엽서를 보내.",
-                "오랜만에 내 소식도 전할 겸 글을 적어.",
-                "요즘 많이 바쁘지? 항상 응원하고 있어."
+                "나에게 쓰는 편지. 이 엽서가 도착할 즈음의 나는...",
+                "지금까지 정말 수고 많았어. 참 잘하고 있어.",
+                "이거 좀 특이해서 한 번 보내봐. 엽서 받고 웃으라고.",
+                "늘 고맙고 미안해. 앞으로도 잘 부탁해.",
+                "오랜만에 안부 전해. 조만간 얼굴 보고 밥이나 먹자.",
+                "요즘 많이 바쁘지? 다치지 말고 항상 건강해라.",
+                "거창한 이유는 없어. 그냥 네가 좋아할 것 같아서 골랐어."
             ];
             const [placeholderIndex, setPlaceholderIndex] = useState(0);
             const [isPlaceholderVisible, setIsPlaceholderVisible] = useState(true);
@@ -319,7 +324,7 @@
                                     </div>
 
                                     {/* 3D Flip Container */}
-                                    <div className="w-full aspect-[1.48/1] relative perspective-[1500px]" onClick={() => { if (!isFlipped) setIsFlipped(true); }}>
+                                    <div className="w-full aspect-[2313/1509] relative perspective-[1500px]" onClick={() => { if (!isFlipped) setIsFlipped(true); }}>
                                         <motion.div
                                             className="w-full h-full relative preserve-3d shadow-2xl"
                                             animate={{ rotateY: isFlipped ? 180 : 0 }}
