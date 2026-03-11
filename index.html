@@ -249,7 +249,7 @@
                 scroll-snap-type: x mandatory;
                 -ms-overflow-style: none;  /* IE and Edge */
                 scrollbar-width: none;  /* Firefox */
-                padding: 40px 10vw; /* 상하 패딩 넉넉히(40px) 줘서 회전 시 잘림 방지, 양옆은 Peeking 여백 */
+                padding: 24px 10vw; /* 상하 패딩 약간 축소 (24px) */
                 gap: 5vw; /* 아이템 간 간격 */
             }
             .peeking-carousel::-webkit-scrollbar {
@@ -270,7 +270,7 @@
             }
             @media (min-width: 768px) {
                 .peeking-carousel {
-                    padding: 40px calc(50vw - 200px); /* 데스크탑 스냅 센터 여백 보정 */
+                    padding: 24px calc(50vw - 200px); /* 데스크탑 스냅 센터 여백 보정 */
                     gap: 32px;
                 }
                 .carousel-item {
@@ -278,7 +278,7 @@
                 }
             }
         </style>
-        <section class="w-full py-12 md:py-24 overflow-hidden">
+        <section class="w-full py-4 md:py-8 overflow-hidden">
             <div class="peeking-carousel">
                 <div class="carousel-item">
                     <img src="assets/letter-example1.webp" alt="Letter Example 1" style="transform: rotate(-2deg);" />
