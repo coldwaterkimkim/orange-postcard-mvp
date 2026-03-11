@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>레터레이브</title>
+    <title>오렌지포스트카드</title>
 
     <!-- Google Tag Manager -->
     <script>(function (w, d, s, l, i) {
@@ -58,10 +58,126 @@
 
     <main class="w-full min-h-screen font-sans">
 
-        <!-- Hero Image -->
-        <section id="hero-section" class="w-full relative overflow-hidden m-0 p-0">
-            <img src="assets/first-image.webp" alt="Hero Background"
-                class="w-full h-auto block m-0 p-0 scale-[1.02] origin-center" />
+        <!-- Hero Section (Composited from separate elements) -->
+        <section id="hero-section" class="w-full m-0 p-0" style="
+            position: relative;
+            background-color: #E77115;
+        ">
+
+            <!-- 1. Background Photo (full bleed) — optimized first-image.webp (70KB) -->
+            <img id="hero-bg-photo" src="assets/first-image.webp" alt="두 사람이 안고 있는 사진" style="
+                    width: 100%;
+                    height: auto;
+                    display: block;
+                    object-fit: cover;
+                    object-position: center top;
+                " />
+
+            <!-- 2. Orange Gradient Overlay — assets/first-image-gradation.svg
+                 Animation: heroGradientShift — opacity fixed at 1, subtle
+                 scale+translate creates organic 'breathing' without
+                 exposing the photo beneath. -->
+            <img id="hero-gradient-overlay" src="assets/first-image-gradation.svg" alt="" aria-hidden="true" style="
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    width: 100%;
+                    height: auto;
+                    display: block;
+                    pointer-events: none;
+                    transform-origin: bottom center;
+                    animation: heroGradientShift 15s ease-in-out infinite;
+                " />
+
+            <!-- 3. Text & CTA Content Area — Figma node-id=87-4 -->
+            <div id="hero-content" style="
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                padding: 0 40px 40px 40px;
+                display: flex;
+                flex-direction: column;
+                gap: 21px;
+            ">
+                <!-- Anim 2: slide-up + fade-in, delay 0.2s -->
+                <h1 id="hero-headline" style="
+                    font-family: 'Pretendard', sans-serif;
+                    font-size: clamp(44px, 13.5vw, 72px);
+                    font-weight: 700;
+                    color: #FFFFFF;
+                    line-height: 1.037;
+                    letter-spacing: 0;
+                    margin: 0;
+                    opacity: 0;
+                    transform: translateY(10px);
+                    animation: heroSlideUp 0.8s cubic-bezier(0.4,0,0.2,1) 0.2s forwards;
+                ">길게 말고,<br>짧게 한 장.</h1>
+
+                <!-- Anim 3: fade-in, delay 1.4s (0.2 + 0.8 + 0.4) -->
+                <p id="hero-subcopy-1" style="
+                    font-family: 'Pretendard', sans-serif;
+                    font-size: clamp(18px, 6vw, 32px);
+                    font-weight: 600;
+                    color: #FFFFFF;
+                    line-height: 1.19;
+                    margin: 0;
+                    opacity: 0;
+                    animation: heroFadeIn 0.8s ease-in-out 1.4s forwards;
+                ">지금 떠오른 그 사람에게<br>문자 대신 물성을.</p>
+
+                <!-- Anim 4: fade-in + warm pulse after, delay 1.8s -->
+                <p id="hero-subcopy-2" style="
+                    font-family: 'Pretendard', sans-serif;
+                    font-size: clamp(15px, 4.5vw, 24px);
+                    font-weight: 400;
+                    color: #FFFFFF;
+                    line-height: 1.19;
+                    margin: 0;
+                    opacity: 0;
+                    animation: heroFadeInPulse 0.8s ease-in-out 1.8s forwards;
+                ">1,500원으로 전달되는, 당신만의 오렌지색 조각</p>
+
+                <!-- CTA: 캡션 + 버튼 동시 fade-in, delay 2.2s -->
+                <div id="hero-btn-wrap" style="
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 10px;
+                    opacity: 0;
+                    animation: heroFadeIn 0.8s ease-in-out 2.2s forwards;
+                ">
+                    <!-- 캡션 -->
+                    <p id="hero-cta-caption" style="
+                        font-family: 'Pretendard', sans-serif;
+                        font-size: clamp(12px, 3vw, 14px);
+                        font-weight: 400;
+                        color: rgba(255, 255, 255, 0.75);
+                        letter-spacing: -0.01em;
+                        margin: 0;
+                        text-align: center;
+                    ">품질 관리를 위해 하루 50장만 발송됩니다.</p>
+                    <!-- 버튼 -->
+                    <button id="hero-cta-button"
+                        onclick="if(typeof window.sendTrackingEvent === 'function') window.sendTrackingEvent('click_cta_hero', 'CTA_Clicked'); setTimeout(() => window.location.href='/write', 150);"
+                        style="
+                            font-family: 'Pretendard', sans-serif;
+                            font-size: clamp(14px, 3.5vw, 17px);
+                            font-weight: 600;
+                            color: #FFFFFF;
+                            background-color: rgba(0, 0, 0, 0.30);
+                            border: none;
+                            border-radius: 999px;
+                            padding: 14px 32px;
+                            cursor: pointer;
+                            letter-spacing: -0.01em;
+                            white-space: nowrap;
+                            transition: background-color 0.2s ease;
+                        " onmouseover="this.style.backgroundColor='rgba(0,0,0,0.45)'"
+                        onmouseout="this.style.backgroundColor='rgba(0,0,0,0.30)'">지금, 엽서 전달 신청하기</button>
+                </div>
+            </div>
+
         </section>
 
         <!-- Collage Marquee (Keep existing loop) -->
@@ -117,10 +233,10 @@
             </div>
             <div class="text-left">
                 <h2 class="text-4xl md:text-5xl font-black tracking-tighter text-[#1A1A1A] mb-6 leading-tight">
-                    엽서는 보냈어도<br>당신께 기록은 남습니다.
+                    엽서는 보냈어도<br>기록은 남습니다.
                 </h2>
                 <p class="font-medium text-[#444444] leading-relaxed text-lg">
-                    발송한 모든 문장과 엽서의 형태는 보관함에 영구히 기록되어 언제든 고요히 꺼내볼 수 있습니다.
+                    발송한 모든 문장과 엽서의 형태는 보관함에 영구히 기록되어 언제든 다시 볼 수 있습니다.
                 </p>
             </div>
         </section>

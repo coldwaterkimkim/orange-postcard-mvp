@@ -14,13 +14,42 @@ body {
 }
 
 @keyframes float {
-
-    0%,
-    100% {
+    0%, 100% {
         transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
     }
-
     50% {
         transform: translate(var(--tw-translate-x), calc(var(--tw-translate-y) - 10px)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
     }
+}
+
+/* ─── Hero Section Animations ──────────────────────────────────── */
+
+/* 1. Gradient Overlay: organic breathing via transform (opacity stays 1).
+      transform-origin: bottom center — bottom edge stays anchored,
+      upper part gently expands/contracts and drifts, giving depth. */
+@keyframes heroGradientShift {
+    0%   { transform: scale(1.00) translateY(0px);  }
+    33%  { transform: scale(1.02) translateY(-6px);  }
+    66%  { transform: scale(1.01) translateY(-3px);  }
+    100% { transform: scale(1.00) translateY(0px);  }
+}
+
+/* 2. Headline: slide-up + fade-in */
+@keyframes heroSlideUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* 3. Sub-copy / general fade-in */
+@keyframes heroFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* 4. Price copy: fade-in then warm glow bloom */
+@keyframes heroFadeInPulse {
+    0%   { opacity: 0; text-shadow: none; }
+    60%  { opacity: 1; text-shadow: none; }
+    80%  { opacity: 1; text-shadow: 0 0 20px rgba(255, 160, 60, 0.6); }
+    100% { opacity: 1; text-shadow: none; }
 }
